@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"gmap/src/icmp"
+)
 
 /*
 ~ Licensed to the Apache Software Foundation (ASF) under one or more
@@ -32,5 +35,11 @@ import "fmt"
 // main
 // @Description:   主函数
 func main() {
-	fmt.Println("Hello world!")
+	// Ping
+	res, err := icmp.SendPingRequest("192.168.80.200")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(res)
 }
