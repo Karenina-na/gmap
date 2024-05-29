@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gmap/src/icmp"
+	"time"
 )
 
 /*
@@ -36,10 +37,11 @@ import (
 // @Description:   主函数
 func main() {
 	// Ping
-	res, err := icmp.SendPingRequest("192.168.80.200")
+	log, payload, err := icmp.SendPingRequest("192.168.80.200", time.Duration(5000)*time.Millisecond)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(res)
+	fmt.Println(payload)
+	fmt.Println(log)
 }
