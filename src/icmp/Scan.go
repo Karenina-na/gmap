@@ -16,7 +16,7 @@ func SendPingRequest(Address string, Timeout time.Duration) (string, string, err
 
 	// Connect to the address
 	conn, err := net.DialTimeout("ip4:icmp", Address, Timeout)
-	conn.SetDeadline(time.Now().Add(Timeout))
+	_ = conn.SetDeadline(time.Now().Add(Timeout))
 	if err != nil {
 		return "", "", err
 	}

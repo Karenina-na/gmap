@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gmap/src/icmp"
+	"gmap/src/tcp/syn"
 	"time"
 )
 
@@ -37,7 +37,10 @@ import (
 // @Description:   主函数
 func main() {
 	// Ping
-	log, payload, err := icmp.SendPingRequest("192.168.80.200", time.Duration(5000)*time.Millisecond)
+	log, payload, err := syn.SendSynRequest(
+		"192.168.80.1", 27842,
+		"192.168.80.200", 80, time.Duration(1000)*time.Millisecond,
+	)
 	if err != nil {
 		fmt.Println(err)
 		return
