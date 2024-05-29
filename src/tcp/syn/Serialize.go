@@ -6,7 +6,7 @@ package syn
 //	@receiver pkt
 //	@return []byte
 func (pkt *TcpSyn) Serialize() []byte {
-	return append(pkt.header.Serialize(), pkt.payload...)
+	return append(pkt.Header.Serialize(), pkt.payload...)
 }
 
 // Serialize
@@ -15,5 +15,5 @@ func (pkt *TcpSyn) Serialize() []byte {
 //	@receiver pkt
 //	@return []byte
 func (pkt *TcpSynAck) Serialize() []byte {
-	return append(pkt.header.Serialize(), pkt.payload...)
+	return append(pkt.Header.Serialize(), pkt.payload...)
 }

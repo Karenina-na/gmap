@@ -24,9 +24,9 @@ func DecodeTCPHeader(data []byte) (*Header, error) {
 		AckNumber:       uint32(data[8])<<24 | uint32(data[9])<<16 | uint32(data[10])<<8 | uint32(data[11]),
 		DataOffset:      data[12] >> 4,
 		Reserved:        data[12] & 0x0f,
-		Flags:           uint16(data[13])<<8 | uint16(data[14]),
-		WindowSize:      uint16(data[15])<<8 | uint16(data[16]),
-		Checksum:        uint16(data[17])<<8 | uint16(data[18]),
-		UrgentPointer:   uint16(data[19])<<8 | uint16(data[20]),
+		Flags:           uint16(data[13] & 0x3f),
+		WindowSize:      uint16(data[14])<<8 | uint16(data[15]),
+		Checksum:        uint16(data[16])<<8 | uint16(data[17]),
+		UrgentPointer:   uint16(data[18])<<8 | uint16(data[19]),
 	}, nil
 }

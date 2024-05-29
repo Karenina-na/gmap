@@ -9,14 +9,14 @@ import (
 // TcpSyn
 // @Description: A TCP SYN packet
 type TcpSyn struct {
-	header  tcp.Header
+	Header  tcp.Header
 	payload []byte
 }
 
 // TcpSynAck
 // @Description: A TCP SYN-ACK packet
 type TcpSynAck struct {
-	header  tcp.Header
+	Header  tcp.Header
 	payload []byte
 }
 
@@ -37,7 +37,7 @@ func CreateTcpSyn(srcIP, dstIP string, srcPort, dstPort uint16, seqNum, ackNum u
 		DestinationPort: dstPort,
 		SequenceNumber:  seqNum,
 		AckNumber:       ackNum,
-		DataOffset:      5,
+		DataOffset:      6,
 		Reserved:        0,
 		Flags:           0x02, // SYN
 		WindowSize:      1024,
@@ -46,17 +46,18 @@ func CreateTcpSyn(srcIP, dstIP string, srcPort, dstPort uint16, seqNum, ackNum u
 	}
 
 	pkt := TcpSyn{
-		header:  header,
-		payload: []byte(""),
+		Header: header,
+		// Option: Maximum Segment Size 1460 bytes
+		payload: []byte{0x02, 0x04, 0x05, 0xb4},
 	}
 
-	pkt.header.OtherInfo = fmt.Sprintf("TCP SYN: %s:%d -> %s:%d",
+	pkt.Header.OtherInfo = fmt.Sprintf("TCP SYN: %s:%d -> %s:%d",
 		srcIP, srcPort, dstIP, dstPort,
 	)
 
 	// checksum
 	pseudoHeader := util.CreatePseudoHeader(srcIP, dstIP, len(pkt.payload)+20)
-	pkt.header.Checksum = util.CalculateChecksum(append(pseudoHeader, pkt.Serialize()...))
+	pkt.Header.Checksum = util.CalculateChecksum(append(pseudoHeader, pkt.Serialize()...))
 
 	return &pkt, nil
 }
@@ -77,12 +78,12 @@ func DecodeTcpSynAck(srcIP, dstIP string, data []byte) (*TcpSynAck, error) {
 	}
 
 	pkt := TcpSynAck{
-		header:  *header,
+		Header:  *header,
 		payload: data[20:],
 	}
 
-	checksum := header.Checksum
-	header.Checksum = 0
+	checksum := pkt.Header.Checksum
+	pkt.Header.Checksum = 0
 
 	// checksum
 	pseudoHeader := util.CreatePseudoHeader(srcIP, dstIP, len(pkt.payload)+20)
@@ -90,10 +91,10 @@ func DecodeTcpSynAck(srcIP, dstIP string, data []byte) (*TcpSynAck, error) {
 		return nil, fmt.Errorf("checksum error")
 	}
 
-	pkt.header.Checksum = checksum
+	pkt.Header.Checksum = checksum
 
 	// OtherInfo
-	pkt.header.OtherInfo = fmt.Sprintf("TCP SYN-ACK: %s:%d -> %s:%d",
+	pkt.Header.OtherInfo = fmt.Sprintf("TCP SYN-ACK: %s:%d -> %s:%d",
 		srcIP, header.SourcePort, dstIP, header.DestinationPort,
 	)
 
