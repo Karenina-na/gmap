@@ -16,10 +16,10 @@ func SendPingRequest(Address string, Timeout time.Duration) (string, string, err
 
 	// Connect to the address
 	conn, err := net.DialTimeout("ip4:icmp", Address, Timeout)
-	_ = conn.SetDeadline(time.Now().Add(Timeout))
 	if err != nil {
 		return "", "", err
 	}
+	_ = conn.SetDeadline(time.Now().Add(Timeout))
 
 	// Create an ICMP EchoRequest
 	pkt, err := CreateICMPEchoRequest(2024, 2024^2)
