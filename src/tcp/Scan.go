@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"fmt"
+	"gmap/src"
 	"net"
 	"time"
 )
@@ -27,6 +28,12 @@ func SendTCPRequest(IP string, Port string, Timeout time.Duration) (string, stri
 
 	_ = conn.SetDeadline(time.Now().Add(Timeout))
 
+	// payload
+	_, err = conn.Write([]byte(src.PAYLOAD))
+	if err != nil {
+		return "", "", err
+	}
+
 	// close
 	defer func(conn net.Conn) {
 		err := conn.Close()
@@ -41,5 +48,5 @@ func SendTCPRequest(IP string, Port string, Timeout time.Duration) (string, stri
 		"TTL (ms):", int(time.Since(startTime)/time.Millisecond),
 	)
 
-	return tcpLog, "", nil
+	return tcpLog, src.PAYLOAD, nil
 }
