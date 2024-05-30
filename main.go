@@ -185,14 +185,29 @@ func other(ports []string, mode *string, ip *string, timeout *int, logs *util.Li
 	for p := range ports {
 		switch *mode {
 		case "tcp": // tcp
-			log, payload, err := tcp.SendTCPRequest(*ip, ports[p], time.Duration(*timeout)*time.Millisecond)
-			if err != nil {
-				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error-IP: %s | Port: %s | %s", *ip, ports[p], err.Error()))
-			} else {
-				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
-				logs.Append(log)
-				payloads.Append(payload)
-			}
+			//log, payload, err := tcp.SendTCPRequest(*ip, ports[p], time.Duration(*timeout)*time.Millisecond)
+			//if err != nil {
+			//	util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error-IP: %s | Port: %s | %s", *ip, ports[p], err.Error()))
+			//} else {
+			//	util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+			//	logs.Append(log)
+			//	payloads.Append(payload)
+			//}
+			ips := *ip
+			portT := ports[p]
+			RoutinePool.CreateWork(func() (E error) {
+				log, payload, err := tcp.SendTCPRequest(*ip, portT, time.Duration(*timeout)*time.Millisecond)
+				if err != nil {
+					util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error-IP: %s | Port: %s | %s", ips, portT, err.Error()))
+				} else {
+					util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+					logs.Append(log)
+					payloads.Append(payload)
+				}
+				return nil
+			}, func(Message error) {
+				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s", Message))
+			})
 			break
 		}
 	}
