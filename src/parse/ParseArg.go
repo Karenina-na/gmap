@@ -46,7 +46,7 @@ func ParseArg() (*string, []string, *string, *int, *int, *int, *int, *string) {
 	coreThread := flag.Int("tc", 10, "Core thread number")
 	maxThread := flag.Int("tm", 100, "Max thread number")
 	timeoutThread := flag.Int("tt", 10000, "Timeout thread number")
-	savePath := flag.String("s", "result.txt", "Save path")
+	savePath := flag.String("o", "result.txt", "Save path")
 	flag.Parse()
 
 	// mode

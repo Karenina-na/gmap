@@ -105,7 +105,7 @@ func main() {
 	logs.Iterator(func(i int, log string) {
 		_, _ = file.WriteString(log + " | payload: " + payloads.Get(i) + "\n")
 	})
-	util.Loglevel(util.Info, "gmap-main", "Save success.")
+	util.Loglevel(util.Info, "gmap-main", "Save success | Path: "+*savePath)
 	RoutinePool.Close()
 }
 
@@ -136,7 +136,6 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 		// start
 		for i := start; i <= end; i++ {
 			ip := IPPrefix + "." + strconv.Itoa(i)
-			fmt.Println(ip)
 			RoutinePool.CreateWork(func() (E error) {
 				log, payload, err := icmp.SendPingRequest(ip, time.Duration(*timeout)*time.Millisecond)
 				if err != nil {
