@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gmap/src"
 	"gmap/src/icmp"
 	"gmap/src/parse"
 	"gmap/src/tcp"
@@ -43,6 +44,9 @@ import (
 // main
 // @Description:   主函数
 func main() {
+	src.Draw()
+	src.Author()
+	time.Sleep(1 * time.Second)
 	ip, ports, mode, timeout, coreThread, maxThread, timeoutThread, savePath := parse.ParseArg()
 	var portL []string
 	if *mode == "ping" {
