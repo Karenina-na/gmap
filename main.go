@@ -86,6 +86,7 @@ func main() {
 		time.Sleep(time.Second)
 	}
 	util.Loglevel(util.Info, "gmap-main", "Scan completed.")
+	RoutinePool.Close()
 }
 
 // ping
