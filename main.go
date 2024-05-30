@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gmap/src"
 	"gmap/src/icmp"
 	"gmap/src/parse"
 	"gmap/src/tcp"
@@ -43,6 +44,10 @@ import (
 // main
 // @Description:   主函数
 func main() {
+	start := time.Now()
+	src.Draw()
+	src.Author()
+	time.Sleep(1 * time.Second)
 	ip, ports, mode, timeout, coreThread, maxThread, timeoutThread, savePath := parse.ParseArg()
 	var portL []string
 	if *mode == "ping" {
@@ -85,8 +90,8 @@ func main() {
 		}
 		time.Sleep(time.Second)
 	}
-
-	util.Loglevel(util.Info, "gmap-main", "Scan completed.")
+	end := time.Since(start)
+	util.Loglevel(util.Info, "gmap-main", "Scan completed. | Time: "+end.String())
 	// save result
 	util.Loglevel(util.Info, "gmap-main", "Save result...")
 	// 创建文件，并写入
