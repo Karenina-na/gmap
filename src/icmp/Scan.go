@@ -38,7 +38,7 @@ func SendPingRequest(Address string, Timeout time.Duration) (string, string, err
 
 	// Receive the response
 	buf = make([]byte, 1024)
-	_, err = conn.Read(buf)
+	n, err := conn.Read(buf)
 
 	if err != nil {
 		return "", "", err
@@ -46,7 +46,7 @@ func SendPingRequest(Address string, Timeout time.Duration) (string, string, err
 
 	// Decode the response
 	var pkt_resp *EchoResponse
-	pkt_resp, err = DecodeICMPEchoResponse(buf, len(buf))
+	pkt_resp, err = DecodeICMPEchoResponse(buf, n)
 
 	if err != nil {
 		return "", "", err
