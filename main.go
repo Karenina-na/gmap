@@ -102,9 +102,11 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 			log, payload, err := icmp.SendPingRequest(ip, time.Duration(*timeout)*time.Millisecond)
 			if err != nil {
 				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s |  %s", ip, err.Error()))
+			} else {
+				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+				logs.Append(log)
+				payloads.Append(payload)
 			}
-			logs.Append(log)
-			payloads.Append(payload)
 		}
 
 	} else { // like 192.168.80.0/24 CIDR
@@ -119,13 +121,17 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 		for i := range lastIP {
 			lastIP[i] |= ^ipnet.Mask[i]
 		}
+
+		// start
 		for ip := ipnet.IP.Mask(ipnet.Mask); !ip.Equal(lastIP); util.CIDRIncrementIP(ip) {
 			log, payload, err := icmp.SendPingRequest(ip.String(), time.Duration(*timeout)*time.Millisecond)
 			if err != nil {
 				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s | %s", ip.String(), err.Error()))
+			} else {
+				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+				logs.Append(log)
+				payloads.Append(payload)
 			}
-			logs.Append(log)
-			payloads.Append(payload)
 		}
 	}
 }
@@ -146,9 +152,11 @@ func other(ports []string, mode *string, ip *string, timeout *int, logs *util.Li
 			log, payload, err := tcp.SendTCPRequest(*ip, ports[p], time.Duration(*timeout)*time.Millisecond)
 			if err != nil {
 				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error-IP: %s | Port: %s | %s", *ip, ports[p], err.Error()))
+			} else {
+				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+				logs.Append(log)
+				payloads.Append(payload)
 			}
-			logs.Append(log)
-			payloads.Append(payload)
 			break
 		}
 	}
