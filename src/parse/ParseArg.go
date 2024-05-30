@@ -27,12 +27,16 @@ const PositiveReg = "^[1-9]\\d*$"
 
 // ParseArg
 //
-//	@Description: Parse the command line arguments
+//	@Description:
 //	@return *string
 //	@return []string
 //	@return *string
 //	@return *int
-func ParseArg() (*string, []string, *string, *int, *int, *int, *int) {
+//	@return *int
+//	@return *int
+//	@return *int
+//	@return *string
+func ParseArg() (*string, []string, *string, *int, *int, *int, *int, *string) {
 	// parse
 	arg := flag.String("mode", "debug", "debug / release / test")
 	ip := flag.String("ip", "0.0.0.0", "IP address")
@@ -42,6 +46,7 @@ func ParseArg() (*string, []string, *string, *int, *int, *int, *int) {
 	coreThread := flag.Int("tc", 10, "Core thread number")
 	maxThread := flag.Int("tm", 100, "Max thread number")
 	timeoutThread := flag.Int("tt", 10000, "Timeout thread number")
+	savePath := flag.String("s", "result.txt", "Save path")
 	flag.Parse()
 
 	// mode
@@ -180,5 +185,5 @@ func ParseArg() (*string, []string, *string, *int, *int, *int, *int) {
 		os.Exit(1)
 	}
 
-	return ip, ports, mode, timeout, coreThread, maxThread, timeoutThread
+	return ip, ports, mode, timeout, coreThread, maxThread, timeoutThread, savePath
 }

@@ -43,7 +43,7 @@ import (
 // main
 // @Description:   主函数
 func main() {
-	ip, ports, mode, timeout, coreThread, maxThread, timeoutThread := parse.ParseArg()
+	ip, ports, mode, timeout, coreThread, maxThread, timeoutThread, savePath := parse.ParseArg()
 	var portL []string
 	if *mode == "ping" {
 		portL = []string{"None"}
@@ -85,7 +85,27 @@ func main() {
 		}
 		time.Sleep(time.Second)
 	}
+
 	util.Loglevel(util.Info, "gmap-main", "Scan completed.")
+	// save result
+	util.Loglevel(util.Info, "gmap-main", "Save result...")
+	// 创建文件，并写入
+	file, err := os.Create(*savePath)
+	if err != nil {
+		util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s", err.Error()))
+		os.Exit(1)
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s", err.Error()))
+			os.Exit(1)
+		}
+	}(file)
+	logs.Iterator(func(i int, log string) {
+		_, _ = file.WriteString(log + " | payload: " + payloads.Get(i) + "\n")
+	})
+	util.Loglevel(util.Info, "gmap-main", "Save success.")
 	RoutinePool.Close()
 }
 
