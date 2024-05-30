@@ -33,13 +33,16 @@ git clone https://github.com/Karenina-na/gmap.git
 ```
 
 ```bash
-# Enter the project directory
+# Enter the project directory and run the test
 cd gmap
+cd test
+go test
+cd ..
 ```
 
 ```bash
 # Build the project (for windows)
-go build -o gmap.exe main.go
+go build -trimpath -gcflags="-l=4" -ldflags="-s -w -extldflags '-static'" -o gmap.exe main.go
 ./gmap.exe
 ```
 
