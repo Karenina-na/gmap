@@ -11,7 +11,13 @@ watch_exts:
 watch_paths:
   - ./
 # 在执行命令时，需要增加的其他参数
-#cmd_args: ["-mode=debug"]
+cmd_args: [
+  "-mode=debug",
+  "-ip=192.168.80.200",
+  "-p=80-200",
+  "-m=tcp",
+  "-t=1000",
+]
 
 # 在构建命令时，需要增加的其他参数
 build_args:
