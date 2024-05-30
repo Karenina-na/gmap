@@ -43,7 +43,7 @@ import (
 // main
 // @Description:   主函数
 func main() {
-	ip, ports, mode, timeout := parse.ParseArg()
+	ip, ports, mode, timeout, coreThread, maxThread, timeoutThread := parse.ParseArg()
 	var portL []string
 	if *mode == "ping" {
 		portL = []string{"None"}
@@ -63,11 +63,27 @@ func main() {
 		return a == b
 	})
 
+	// create thread pool
+	RoutinePool := util.CreatePool(*coreThread, *maxThread, *timeoutThread)
+	RoutinePool.SetExceptionFunc(func(r any) {
+		util.Loglevel(util.Error, "go-pool", fmt.Sprintf("Error: %s", r))
+	})
+
+	// start
 	util.Loglevel(util.Info, "gmap-main", "Start scanning...")
 	if *mode == "ping" {
-		ping(ports, ip, timeout, logs, payloads)
+		ping(ports, ip, timeout, logs, payloads, RoutinePool)
 	} else { // other like tcp
-		other(ports, mode, ip, timeout, logs, payloads)
+		other(ports, mode, ip, timeout, logs, payloads, RoutinePool)
+	}
+
+	// check if jobNum is 0
+	for {
+		_, _, _, jobNum := RoutinePool.CheckStatus()
+		if jobNum == 0 {
+			break
+		}
+		time.Sleep(time.Second)
 	}
 	util.Loglevel(util.Info, "gmap-main", "Scan completed.")
 }
@@ -80,7 +96,7 @@ func main() {
 //	@param timeout
 //	@param logs
 //	@param payloads
-func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string], payloads *util.LinkList[string]) {
+func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string], payloads *util.LinkList[string], RoutinePool *util.Pool) {
 	if ports[0] != "A" { // like 192.168.80.1-100
 		ips := strings.Split(*ip, "-")
 		IPPrefixL := strings.Split(ips[0], ".")
@@ -99,14 +115,20 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 		// start
 		for i := start; i <= end; i++ {
 			ip := IPPrefix + "." + strconv.Itoa(i)
-			log, payload, err := icmp.SendPingRequest(ip, time.Duration(*timeout)*time.Millisecond)
-			if err != nil {
-				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s |  %s", ip, err.Error()))
-			} else {
-				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
-				logs.Append(log)
-				payloads.Append(payload)
-			}
+			fmt.Println(ip)
+			RoutinePool.CreateWork(func() (E error) {
+				log, payload, err := icmp.SendPingRequest(ip, time.Duration(*timeout)*time.Millisecond)
+				if err != nil {
+					util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s |  %s", ip, err.Error()))
+				} else {
+					util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+					logs.Append(log)
+					payloads.Append(payload)
+				}
+				return nil
+			}, func(Message error) {
+				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s", Message))
+			})
 		}
 
 	} else { // like 192.168.80.0/24 CIDR
@@ -124,14 +146,28 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 
 		// start
 		for ip := ipnet.IP.Mask(ipnet.Mask); !ip.Equal(lastIP); util.CIDRIncrementIP(ip) {
-			log, payload, err := icmp.SendPingRequest(ip.String(), time.Duration(*timeout)*time.Millisecond)
-			if err != nil {
-				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s | %s", ip.String(), err.Error()))
-			} else {
-				util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
-				logs.Append(log)
-				payloads.Append(payload)
-			}
+			//log, payload, err := icmp.SendPingRequest(ip.String(), time.Duration(*timeout)*time.Millisecond)
+			//if err != nil {
+			//	util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s | %s", ip.String(), err.Error()))
+			//} else {
+			//	util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+			//	logs.Append(log)
+			//	payloads.Append(payload)
+			//}
+			ips := ip.String()
+			RoutinePool.CreateWork(func() (E error) {
+				log, payload, err := icmp.SendPingRequest(ips, time.Duration(*timeout)*time.Millisecond)
+				if err != nil {
+					util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s | %s", ips, err.Error()))
+				} else {
+					util.Loglevel(util.Info, "gmap-main", fmt.Sprintf(log))
+					logs.Append(log)
+					payloads.Append(payload)
+				}
+				return nil
+			}, func(Message error) {
+				util.Loglevel(util.Error, "gmap-main", fmt.Sprintf("Error: %s", Message))
+			})
 		}
 	}
 }
@@ -145,7 +181,7 @@ func ping(ports []string, ip *string, timeout *int, logs *util.LinkList[string],
 //	@param timeout
 //	@param logs
 //	@param payloads
-func other(ports []string, mode *string, ip *string, timeout *int, logs *util.LinkList[string], payloads *util.LinkList[string]) {
+func other(ports []string, mode *string, ip *string, timeout *int, logs *util.LinkList[string], payloads *util.LinkList[string], RoutinePool *util.Pool) {
 	for p := range ports {
 		switch *mode {
 		case "tcp": // tcp

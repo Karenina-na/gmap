@@ -27,14 +27,21 @@ const PositiveReg = "^[1-9]\\d*$"
 
 // ParseArg
 //
-//	@Description: parse the command line arguments
-func ParseArg() (*string, []string, *string, *int) {
+//	@Description: Parse the command line arguments
+//	@return *string
+//	@return []string
+//	@return *string
+//	@return *int
+func ParseArg() (*string, []string, *string, *int, *int, *int, *int) {
 	// parse
 	arg := flag.String("mode", "debug", "debug / release / test")
 	ip := flag.String("ip", "0.0.0.0", "IP address")
 	portsR := flag.String("p", "0", "Port range or single port")
 	mode := flag.String("m", "tcp", "tcp / ping")
 	timeout := flag.Int("t", 5, "Timeout (ms)")
+	coreThread := flag.Int("tc", 10, "Core thread number")
+	maxThread := flag.Int("tm", 100, "Max thread number")
+	timeoutThread := flag.Int("tt", 10000, "Timeout thread number")
 	flag.Parse()
 
 	// mode
@@ -152,5 +159,26 @@ func ParseArg() (*string, []string, *string, *int) {
 		os.Exit(1)
 	}
 
-	return ip, ports, mode, timeout
+	// check coreThread
+	if *coreThread <= 0 {
+		util.Loglevel(util.Error, "gmap-main", "Invalid core thread number.")
+		// exit
+		os.Exit(1)
+	}
+
+	// check maxThread
+	if *maxThread <= 0 {
+		util.Loglevel(util.Error, "gmap-main", "Invalid max thread number.")
+		// exit
+		os.Exit(1)
+	}
+
+	// check timeoutThread
+	if *timeoutThread <= 0 {
+		util.Loglevel(util.Error, "gmap-main", "Invalid timeout thread number.")
+		// exit
+		os.Exit(1)
+	}
+
+	return ip, ports, mode, timeout, coreThread, maxThread, timeoutThread
 }

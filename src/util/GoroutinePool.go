@@ -2,7 +2,6 @@ package util
 
 import (
 	"context"
-	"errors"
 	"sync"
 	"time"
 )
@@ -76,15 +75,19 @@ func (P *Pool) CreateWork(f func() (E error), exceptionFunc func(Message error))
 	}
 
 	// 阻塞等待任务队列有空闲
-	select {
-	case P.goChan <- F:
-		P.lock.Lock()
-		P.jobNum++
-		P.lock.Unlock()
-	case <-time.After(time.Duration(P.timeout) * time.Second):
-		P.exceptionFunc(errors.New("goroutine队列溢出，超时"))
-		return
-	}
+	//select {
+	//case P.goChan <- F:
+	//	P.lock.Lock()
+	//	P.jobNum++
+	//	P.lock.Unlock()
+	//case <-time.After(time.Duration(P.timeout) * time.Second):
+	//	P.exceptionFunc(errors.New("goroutine队列溢出，超时"))
+	//	return
+	//}
+	P.goChan <- F
+	P.lock.Lock()
+	P.jobNum++
+	P.lock.Unlock()
 
 	// 动态创建协程
 	P.lock.Lock()
