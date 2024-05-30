@@ -1,11 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"gmap/src/tcp/syn"
-	"time"
-)
-
 /*
 ~ Licensed to the Apache Software Foundation (ASF) under one or more
 ~ contributor license agreements.  See the NOTICE file distributed with
@@ -36,15 +30,4 @@ import (
 // main
 // @Description:   主函数
 func main() {
-	// Ping
-	log, payload, err := syn.SendSynRequest(
-		"192.168.80.1", 27842,
-		"192.168.80.200", 80, time.Duration(1000)*time.Millisecond,
-	)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(payload)
-	fmt.Println(log)
 }
